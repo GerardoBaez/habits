@@ -1,0 +1,4 @@
+server.port: 8082
+server.servlet.context-path: /admin-habits
+server.shutdown: graceful
+springdoc.swagger-ui.path: /admin-habits/swagger-ui.html

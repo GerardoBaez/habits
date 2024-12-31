@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.habits.model.Categorie;
 import com.habits.model.HabitResponse;
+import com.habits.model.ServiceResponse;
 import com.habits.model.User;
+import com.habits.model.UserResponse;
 import com.habits.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +30,15 @@ public class UsersController {
 	
 	
 	@GetMapping("/list")
-	public List<User> getUsers() {
-		List<User> users = service.getUsers();
+	public ResponseEntity<ServiceResponse<List<UserResponse>>> getUsers() {
+		ResponseEntity<ServiceResponse<List<UserResponse>>> users = service.getUsers();
 		return users;
 	}
 	
 	@PostMapping("/create")
-	public void createUser(@RequestBody User user) {
-	  service.createUser(user);
+	public ResponseEntity<ServiceResponse> createUser(@RequestBody User user) {
+	  ResponseEntity<ServiceResponse> createdUser = service.createUser(user);
+	  return createdUser;
 	} 
 	
 	

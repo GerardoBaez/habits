@@ -39,6 +39,7 @@ public class HabitsDao {
 	public int createHabit(HabitRequest habitreq) {
 		Object [] params= {habitreq.getId_user(), habitreq.getName(), habitreq.getId_cat_priority(), habitreq.getDescription(),habitreq.getId_cat_priority()};
 		int update = jdbcTemplate.update("INSERT INTO HABITS (id_user,name_,id_cat_category, desciption,created_at,modified_at,last_day,total_days,id_cat_priority) VALUES (?,?,?,?,SYSDATE(),SYSDATE(),SYSDATE(),1,?)", params);
+		//TODO OBTENER EL ID DEL HABITO QUE SE ACABA DE CREAR
 		return update;
 	}
 	

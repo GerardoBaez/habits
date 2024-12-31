@@ -7,15 +7,16 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.habits.model.Categorie;
 import com.habits.model.User;
+import com.habits.model.UserResponse;
 
-public class UserMapper  implements RowMapper<User> {
+public class UserMapper  implements RowMapper<UserResponse> {
 	
 	@Override
-	public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-		User user= new User();
+	public UserResponse mapRow(ResultSet rs, int rowNum) throws SQLException {
+		UserResponse user= new UserResponse();
 		user.setName(rs.getString("name"));
 		user.setEmail(rs.getString("email"));
-		user.setId_user(rs.getInt("id_user"));
+		user.setCreated_at(rs.getDate("created_at"));
 		return user;
 	}
 

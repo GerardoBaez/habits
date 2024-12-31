@@ -37,7 +37,8 @@ public class HabitsService implements IHabitsService {
 	 */
 	public ResponseEntity<HabitResponse>  createHabit(HabitRequest habit) {
 		HabitResponse response = new HabitResponse();
-		if(habit.getName()==null || habit.getId_cat_category()==null || habit.getId_cat_priority()==null) {
+		if(habit.getName()==null || habit.getId_cat_category()==null || habit.getId_cat_priority()==null
+				|| habit.getId_user()==null) {
 			log.info("No estan informados los campos necesarios para crear un habito");
 			response.setMessage("No estan informados los campos necesarios para crear un habito");
 			return new ResponseEntity<HabitResponse>(response, HttpStatus.BAD_REQUEST);

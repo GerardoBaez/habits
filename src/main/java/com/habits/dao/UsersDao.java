@@ -21,15 +21,32 @@ public class UsersDao {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	
-	
-	public UserResponse getUser(User user) {
-		//Sigue permitiendo darse de alta con solo cambiar el nombre
-		 // de usuario hacer dos consultas una para checar el nombre
-		 // de usuario y otra para checar el email
-		Object [] params = {"%"+user.getName()+"%","%"+user.getEmail()+"%"};
-		 return jdbcTemplate.queryForObject("SELECT * FROM USERS WHERE NAME LIKE ? AND EMAIL LIKE ?", params,new UserMapper() );
+	public String[] userexist(User user) { 
+		String [] args= new String[2];
+		boolean exist=false;
+		if(!this.getUserByEmail(user).isEmpty()) {
+			exist=true;
+			args[1]="El email ya existe";
+		}
+		if(!this.getUserByName(user).isEmpty()) {
+			exist=true;
+			args[1]="El usuario ya existe";
+		}
+		args[0]=String.valueOf(exist);
+		return args;
 	}
+	
+	public List<UserResponse> getUserByName(User user) {
+		Object [] params = {user.getName()};
+		 return jdbcTemplate.query("SELECT * FROM USERS WHERE NAME = ? ", params,new UserMapper() );
+	}
+	
+	public List<UserResponse> getUserByEmail(User user) {
+		Object [] params = {user.getEmail()};
+		 return jdbcTemplate.query("SELECT * FROM USERS WHERE EMAIL = ? ", params,new UserMapper() );
+	}
+	
+	
 	
 	/**
 	 * Metodo para obtener los usuarios

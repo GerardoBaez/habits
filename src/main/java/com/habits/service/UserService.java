@@ -33,29 +33,63 @@ public class UserService {
 	 * @return
 	 */
 	public ResponseEntity <ServiceResponse<List<UserResponse>>> getUsers(){
-		List<ServiceError> listerr= new ArrayList<>();
-		ServiceResponse service = new ServiceResponse<List<UserResponse>>();
+		ResponseEntity <ServiceResponse<List<UserResponse>>> prepareResponse= null;
 		log.info("Obteniendo usuarios");
 		List<UserResponse> users= new ArrayList<UserResponse>();
 		try {
 			users=userdao.getUsers();
-			service.setExitoso(true);
-			service.setRespuesta(users);	
-			return new ResponseEntity< ServiceResponse<List<UserResponse>>>(service,HttpStatus.OK);
-			
+			prepareResponse= this.prepareResponse(true, users, HttpStatus.OK, null);	
 		}catch(DataAccessException exec) {
 			log.error("Ocurrio un error");
 			log.error(exec.getMessage());
-			ServiceErrors errorlist = this.crea_error(listerr, "Error de datos");
-			service.setExitoso(false);
-			service.setServiceErrors(errorlist);
-			return new ResponseEntity< ServiceResponse<List<UserResponse>>>(service,HttpStatus.BAD_REQUEST);
-		
+			prepareResponse=this.prepareResponse(false, null, HttpStatus.BAD_REQUEST, "Error de datos");
 		}
-		
-		
+		return prepareResponse;
 	}
 	
+	/**
+	 * Metodo para insertar usuario
+	 * @param user
+	 * @return 
+	 */
+	public ResponseEntity<ServiceResponse> createUser(User user) {	
+		log.info("Creando usuario..");
+		ResponseEntity<ServiceResponse> response = null;
+		UserResponse createdUser = null;
+		ServiceResponse isvalid = this.isvalid(user);
+		if(isvalid.isExitoso()) {
+			try {
+				 createdUser = userdao.createUser(user);
+			}
+			catch(DataAccessException | NullPointerException exce) {
+				log.error("Ocurrio un error");
+				log.error(exce.getMessage());
+				response=this.prepareResponse(false, null, HttpStatus.BAD_REQUEST, "Error de base datos");
+			}
+			if(createdUser!=null) {
+				response=this.prepareResponse(true, createdUser, HttpStatus.OK, null);
+			}
+		}
+		else {	
+			response=this.prepareResponse(false,null,HttpStatus.BAD_REQUEST,isvalid.getServiceErrors().getErrors().get(0).getMessage());
+		}
+		return  response;
+	}
+	
+	
+	public ResponseEntity prepareResponse(Boolean exitoso,Object respuesta, HttpStatus status,String errormsg){
+		ServiceResponse service = new ServiceResponse();
+		List<ServiceError> list= new ArrayList<>();
+		ServiceErrors errors = new ServiceErrors();
+		ServiceError error = new ServiceError();
+		error.setMessage(errormsg);
+		list.add(error);
+		errors.setErrors(list);
+		service.setServiceErrors(errors);
+		service.setExitoso(exitoso);
+		service.setRespuesta(respuesta);
+		return new ResponseEntity<>(service,status);
+	}
 	
 	public ServiceErrors crea_error(List<ServiceError> list, String message){
 		ServiceErrors errors = new ServiceErrors();
@@ -66,56 +100,21 @@ public class UserService {
 		return errors;
 	}
 	
-	/**
-	 * Metodo para insertar usuario
-	 * @param user
-	 * @return 
-	 */
-	public ResponseEntity<ServiceResponse> createUser(User user) {	
-		log.info("Creando usuario..");
-		List<ServiceError> listerr= new ArrayList<>();
-		ServiceResponse service = new ServiceResponse<UserResponse>();
-		UserResponse createdUser = null;
-		ServiceResponse isvalid = this.isvalid(user);
-		if(isvalid.isExitoso()) {
-			try {
-				 createdUser = userdao.createUser(user);
-			}
-			catch(DataAccessException | NullPointerException exce) {
-				log.error("Ocurrio un error");
-				log.error(exce.getMessage());
-				ServiceErrors list_err = this.crea_error(listerr, "Error de base datos");
-				service.setExitoso(false);
-				service.setServiceErrors(list_err);
-				//return new ResponseEntity<ServiceResponse>(service,HttpStatus.BAD_REQUEST);
-			}
-			if(createdUser!=null) {
-				service.setExitoso(true);
-				service.setRespuesta(createdUser);
-				
-			}
-			
-		}
-		else {	
-			return new ResponseEntity<ServiceResponse>(isvalid,HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<ServiceResponse>(service,HttpStatus.OK);
-	}
+	
 	
 	public ServiceResponse isvalid(User request) {
 		List<ServiceError> listerr= new ArrayList<>();
 		ServiceResponse service = new ServiceResponse<UserResponse>();
-		try {
-			UserResponse userfound = userdao.getUser(request);
-			if(userfound!=null) {
-				log.error("Usuario ya existente");
-				ServiceErrors errors = this.crea_error(listerr, "Usuario ya existente");
+		String[] userexist = userdao.userexist(request);
+		if(!Boolean.parseBoolean(userexist[0])&& this.validrequest(request)) {
+			service.setExitoso(true);
+		}
+		else {
+			if(Boolean.parseBoolean(userexist[0])) {
+				log.error(String.valueOf(userexist[1]));
+				ServiceErrors errors = this.crea_error(listerr,userexist[1]);
 				service.setExitoso(false);
 				service.setServiceErrors(errors);
-			}
-		}catch(DataAccessException | NullPointerException exce) {
-			if(request.getName()!=null && request.getEmail()!=null && request.getPass()!=null) {
-				service.setExitoso(true);
 			}
 			else {
 				log.error("No estan informados los campos necesarios");
@@ -123,10 +122,21 @@ public class UserService {
 				service.setExitoso(false);
 				service.setServiceErrors(errors);
 			}
+			
 		}
+		
 		
 		return service;
 	}
+	
+	public Boolean validrequest(User request) {
+		boolean valid=false;
+		if(request.getName()!=null && request.getEmail()!=null && request.getPass()!=null) {
+			valid=true;
+		}
+		return valid;
+	}
+	
 	
 	
 }

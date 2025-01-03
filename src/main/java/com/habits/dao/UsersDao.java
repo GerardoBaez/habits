@@ -24,11 +24,11 @@ public class UsersDao {
 	public String[] userexist(User user) { 
 		String [] args= new String[2];
 		boolean exist=false;
-		if(!this.getUserByEmail(user).isEmpty()) {
+		if(!this.getUserByEmail(user.getEmail()).isEmpty()) {
 			exist=true;
 			args[1]="El email ya existe";
 		}
-		if(!this.getUserByName(user).isEmpty()) {
+		if(!this.getUserByName(user.getName()).isEmpty()) {
 			exist=true;
 			args[1]="El usuario ya existe";
 		}
@@ -36,13 +36,13 @@ public class UsersDao {
 		return args;
 	}
 	
-	public List<UserResponse> getUserByName(User user) {
-		Object [] params = {user.getName()};
+	public List<UserResponse> getUserByName(String name) {
+		Object [] params = {name};
 		 return jdbcTemplate.query("SELECT * FROM USERS WHERE NAME = ? ", params,new UserMapper() );
 	}
 	
-	public List<UserResponse> getUserByEmail(User user) {
-		Object [] params = {user.getEmail()};
+	public List<UserResponse> getUserByEmail(String email) {
+		Object [] params = {email};
 		 return jdbcTemplate.query("SELECT * FROM USERS WHERE EMAIL = ? ", params,new UserMapper() );
 	}
 	

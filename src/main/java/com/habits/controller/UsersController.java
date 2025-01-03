@@ -6,9 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.habits.model.Categorie;
@@ -27,6 +29,19 @@ public class UsersController {
 	
 	@Autowired
 	private UserService service;
+	
+	
+	@GetMapping("/email")
+	public ResponseEntity<ServiceResponse<UserResponse>> getByEmail(@RequestParam String email){
+		ResponseEntity<ServiceResponse<UserResponse>> userByName = service.getUserByEmail(email);
+		return userByName;
+	} 
+	
+	@GetMapping("/name")
+	public ResponseEntity<ServiceResponse<UserResponse>> getByName(@RequestParam String name){
+		ResponseEntity<ServiceResponse<UserResponse>> userByName = service.getUserByName(name);
+		return userByName;
+	} 
 	
 	
 	@GetMapping("/list")

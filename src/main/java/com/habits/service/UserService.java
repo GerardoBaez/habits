@@ -48,6 +48,54 @@ public class UserService {
 	}
 	
 	/**
+	 * Metodo para obtener usuario por el  nombre
+	 * @return
+	 */
+	public ResponseEntity <ServiceResponse<UserResponse>> getUserByName(String name){
+		ResponseEntity <ServiceResponse<UserResponse>> prepareResponse= null;
+		log.info("Obteniendo usuario");
+		List<UserResponse> users= new ArrayList<UserResponse>();
+		try {
+			users=userdao.getUserByName(name);
+			prepareResponse= this.prepareResponse(true, users, HttpStatus.OK, null);	
+		}catch(DataAccessException exec) {
+			log.error("Ocurrio un error");
+			log.error(exec.getMessage());
+			prepareResponse=this.prepareResponse(false, null, HttpStatus.BAD_REQUEST, "Error de datos");
+		}
+		if(users.isEmpty()) {
+			prepareResponse=this.prepareResponse(false, null, HttpStatus.OK, "No existe el usuario");
+		}
+		
+		return prepareResponse;
+	}
+	
+	/**
+	 * Metodo para obtener usuario por el  nombre
+	 * @return
+	 */
+	public ResponseEntity <ServiceResponse<UserResponse>> getUserByEmail(String email){
+		ResponseEntity <ServiceResponse<UserResponse>> prepareResponse= null;
+		log.info("Obteniendo usuario");
+		List<UserResponse> users= new ArrayList<UserResponse>();
+		try {
+			users=userdao.getUserByEmail(email);
+			prepareResponse= this.prepareResponse(true, users, HttpStatus.OK, null);	
+		}catch(DataAccessException exec) {
+			log.error("Ocurrio un error");
+			log.error(exec.getMessage());
+			prepareResponse=this.prepareResponse(false, null, HttpStatus.BAD_REQUEST, "Error de datos");
+		}
+		if(users.isEmpty()) {
+			prepareResponse=this.prepareResponse(false, null, HttpStatus.OK, "No existe el usuario");
+		}
+		
+		return prepareResponse;
+	}
+	
+	
+	
+	/**
 	 * Metodo para insertar usuario
 	 * @param user
 	 * @return 
